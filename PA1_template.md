@@ -2,10 +2,7 @@
 title: "Reproducible Research Assignment 1"
 output: html_document
 ---
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
-                      echo=FALSE, warning=FALSE, message=FALSE)
-```
+
 
 ## Loading and preprocessing the data
 
@@ -15,11 +12,7 @@ Show any code that is needed to
 
 2.Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r}
-data <- read.csv("E:/R/activity.csv", header = TRUE, sep = ",", colClasses = "character")
 
-data[, c(1,3)] <- sapply(data[, c(1,3)], as.numeric)
-```
 
 ## What is mean total number of steps taken per day?
 
@@ -31,17 +24,14 @@ For this part of the assignment, you can ignore the missing values in the datase
 
 3.Calculate and report the mean and median of the total number of steps taken per day
 
-```{r}
-dailyStepSum <- aggregate(data$steps, list(data$date), sum)
-colnames(dailyStepSum) <- c("Date", "Steps")
+![plot of chunk unnamed-chunk-2](Figs/unnamed-chunk-2-1.png) 
 
-barplot(height=dailyStepSum$Steps, main="Histogram", xlab="Date", ylab="Frequency", col="blue", names.arg = dailyStepSum$Date)
+```
+## [1] 10766.19
+```
 
-meanTotalSteps <- mean(dailyStepSum$Steps, na.rm = TRUE)
-meanTotalSteps
-
-medTotalSteps <- median(dailyStepSum$Steps, na.rm = TRUE)
-medTotalSteps
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -50,13 +40,11 @@ medTotalSteps
 
 2.Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
-avgIntervalSteps <- aggregate(steps ~ interval, data = data, FUN=mean, na.action=na.omit)
+![plot of chunk unnamed-chunk-3](Figs/unnamed-chunk-3-1.png) 
 
-plot(avgIntervalSteps$interval, avgIntervalSteps$steps, type="l", xlab= "Interval", ylab= "Steps", main="Average number of steps taken", col="blue" , lwd=2)
-
-IntervalMax <- avgIntervalSteps[avgIntervalSteps[,2] == max(avgIntervalSteps$steps, na.rm = TRUE),]
-IntervalMax
+```
+##     interval    steps
+## 104      835 206.1698
 ```
 
 ## Imputing missing values
@@ -71,26 +59,20 @@ Note that there are a number of days/intervals where there are missing values (c
 
 4.Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
-NAsum <- (sum(is.na(data)))
-NAsum
 
-stepValues <- data.frame(data$steps)
-stepValues[is.na(stepValues),] <- tapply(X=data$steps,INDEX=data$interval,FUN=mean,na.rm=TRUE)
-newData <- cbind(stepValues, data[,2:3])
-colnames(newData) <- c("Steps", "Date", "Interval")        
-
-dailyStepSumNew <- aggregate(newData$Steps, list(newData$Date), sum)
-colnames(dailyStepSumNew) <- c("Date", "Steps")
-
-meanNewTotalSteps <- mean(dailyStepSumNew$Steps)
-meanNewTotalSteps
-
-medNewTotalSteps <- median(dailyStepSumNew$Steps)
-medNewTotalSteps
-
-barplot(height=dailyStepSumNew$Steps, main="Histogram", xlab="Date", ylab="Frequency", col="blue", names.arg = dailyStepSumNew$Date)
 ```
+## [1] 2304
+```
+
+```
+## [1] 10766.19
+```
+
+```
+## [1] 10766.19
+```
+
+![plot of chunk unnamed-chunk-4](Figs/unnamed-chunk-4-1.png) 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
@@ -100,15 +82,4 @@ For this part the weekdays() function may be of some help here. Use the dataset 
 
 2.Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r}
-dateDayType <- data.frame(sapply(X = newData$Date, FUN = function (day) {if (weekdays(as.Date(day)) %in% c("Monday", "Tuesday", "Wednesday", "Thursday","Friday")) {day <- "weekday"} else {day <- "weekend"}}))
-        
-newDataWithDayType <- cbind(newData, dateDayType)
-colnames(newDataWithDayType) <- c("Steps", "Date", "Interval", "DayType")
-
-dayTypeIntervalSteps <- aggregate(data=newDataWithDayType,Steps ~ DayType + Interval,FUN=mean)
-
-library("lattice")
-
-xyplot(type="l",data=dayTypeIntervalSteps,Steps ~ Interval | DayType,xlab="Interval",ylab="Number of steps",layout=c(1,2))
-```
+![plot of chunk unnamed-chunk-5](Figs/unnamed-chunk-5-1.png) 
